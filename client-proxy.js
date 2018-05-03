@@ -1,4 +1,4 @@
-const clientZipkin = require('./client-interceptor');
+const clientInterceptor = require('./client-interceptor');
 
 const handler = {
 
@@ -48,7 +48,7 @@ const handler = {
         options.interceptors = [];
       }
 
-      options.interceptors.push(clientZipkin);
+      options.interceptors.push(clientInterceptor);
 
       return origFunc.call(target, message, options, callback);
 
