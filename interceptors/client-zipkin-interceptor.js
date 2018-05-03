@@ -18,7 +18,7 @@ function getServiceName(path) {
   return path.split('/')[0];
 }
 
-const clientInterceptor = function (options, nextCall) {
+const zipkinInterceptor = function (options, nextCall) {
 
   const instrumentation = new Instrumentation.HttpClient({
     tracer: tracer,
@@ -64,4 +64,4 @@ const clientInterceptor = function (options, nextCall) {
 
 };
 
-module.exports = clientInterceptor;
+module.exports = zipkinInterceptor;

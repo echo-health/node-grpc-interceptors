@@ -1,4 +1,4 @@
-const clientInterceptor = require('./client-interceptor');
+const interceptors = [];
 
 const handler = {
 
@@ -48,7 +48,7 @@ const handler = {
         options.interceptors = [];
       }
 
-      options.interceptors.push(clientInterceptor);
+      options.interceptors = options.interceptors.concat(interceptors);
 
       return origFunc.call(target, message, options, callback);
 
@@ -59,5 +59,8 @@ const handler = {
 };
 
 module.exports = (client) => {
+  client.use = (interceptorFunction) => {
+    interceptors.push(interceptorFunction);
+  };
   return new Proxy(client, handler);
 };
