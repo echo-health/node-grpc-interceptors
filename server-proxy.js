@@ -6,12 +6,14 @@ const handler = {
   get(target, propKey) {
 
     // store the original func being called
-    const origFunc = target[propKey];
+    let origFunc = target[propKey];
 
     // TODO: work out how to validate this is a server method
 
-    return function (...args) {
-      // TODO: implement the logic to inject the interceptors
+    return function(...args) {
+      interceptors.forEach(interceptor => {
+        origFunc = interceptor()(origFunc);
+      });
       return origFunc.call(target, ...args);
     };
 
@@ -20,8 +22,8 @@ const handler = {
 };
 
 module.exports = (server) => {
-  server.use = (interceptorFunction) => {
-    interceptors.push(interceptorFunction);
+  server.use = fn => {
+    interceptors.push(fn);
   };
   return new Proxy(server, handler);
 };

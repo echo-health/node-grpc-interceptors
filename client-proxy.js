@@ -1,4 +1,4 @@
-const interceptors = [];
+let interceptors = [];
 
 const handler = {
 
@@ -59,8 +59,8 @@ const handler = {
 };
 
 module.exports = (client) => {
-  client.use = (interceptorFunction) => {
-    interceptors.push(interceptorFunction);
+  client.use = (...interceptorFuncs) => {
+    interceptors = interceptors.concat(interceptorFuncs);
   };
   return new Proxy(client, handler);
 };
