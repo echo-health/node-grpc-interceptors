@@ -18,10 +18,10 @@ const handler = {
       const newImplementation = {
         [name]: (...args) => {
           const interceptors = intercept();
-          interceptors.next().value(function n() {
+          interceptors.next().value(...args, function n() {
             const next = interceptors.next();
             if (next.done) return implementation[name](...args);
-            return next.value(n);
+            return next.value(...args, n);
           });
         },
       };
