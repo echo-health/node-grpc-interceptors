@@ -1,34 +1,26 @@
-// module.exports = {
-//   clientProxy: require('./client-proxy'),
-//   serverProxy: require('./server-proxy'),
-//   clientPrometheusInterceptor: require('./interceptors/client-prometheus-interceptor'),
-//   clientZipkinInterceptor: require('./interceptors/client-zipkin-interceptor'),
-// };
-
 const _server = {
   hello(name) {
-    console.log('func hello');
     console.log(`hello ${name}`);
   },
 };
 
-function boom() {
-  console.log('func boom');
-  return next => (...args) => {
-    return next(...args);
-  };
+function foo(next) {
+  console.log('foo');
+  next();
 }
-
-// function foo() {
-//   console.log('func foo');
-//   return next => (...args) => {
-//     return next(...args);
-//   };
-// }
+function bar(next) {
+  console.log('bar');
+  next();
+}
+function boom(next) {
+  console.log('boom');
+  next();
+}
 
 const server = require('./server-proxy')(_server);
 
+server.use(foo);
+server.use(bar);
 server.use(boom);
-// server.use(foo);
 
 server.hello('bob');

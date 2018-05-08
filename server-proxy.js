@@ -1,4 +1,12 @@
-const interceptors = [];
+const _interceptors = [];
+
+function* intercept() {
+  let i = 0;
+  while (i < _interceptors.length) {
+    yield _interceptors[i];
+    i++;
+  }
+}
 
 const handler = {
 
@@ -6,15 +14,22 @@ const handler = {
   get(target, propKey) {
 
     // store the original func being called
-    let origFunc = target[propKey];
+    const origFunc = target[propKey];
 
-    // TODO: work out how to validate this is a server method
+    if (propKey !== 'hello') {
+      return function(...args) {
+        return target[propKey](...args);
+      };
+    }
+
+    const interceptors = intercept();
 
     return function(...args) {
-      interceptors.forEach(interceptor => {
-        origFunc = interceptor()(origFunc);
+      interceptors.next().value(function n() {
+        const next = interceptors.next();
+        if (next.done) return origFunc(...args);
+        return next.value(n);
       });
-      return origFunc.call(target, ...args);
     };
 
   },
@@ -23,7 +38,7 @@ const handler = {
 
 module.exports = (server) => {
   server.use = fn => {
-    interceptors.push(fn);
+    _interceptors.push(fn);
   };
   return new Proxy(server, handler);
 };
