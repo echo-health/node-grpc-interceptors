@@ -9,31 +9,25 @@ function* intercept() {
 }
 
 const handler = {
-
-  // set up the proxy get handler
   get(target, propKey) {
-
-    // store the original func being called
-    const origFunc = target[propKey];
-
-    if (propKey !== 'hello') {
-      return function(...args) {
-        return target[propKey](...args);
-      };
+    if (propKey !== 'addService') {
+      return target[propKey];
     }
-
-    const interceptors = intercept();
-
-    return function(...args) {
-      interceptors.next().value(function n() {
-        const next = interceptors.next();
-        if (next.done) return origFunc(...args);
-        return next.value(n);
-      });
+    return (service, implementation) => {
+      const name = Object.keys(implementation)[0];
+      const newImplementation = {
+        [name]: (...args) => {
+          const interceptors = intercept();
+          interceptors.next().value(function n() {
+            const next = interceptors.next();
+            if (next.done) return implementation[name](...args);
+            return next.value(n);
+          });
+        },
+      };
+      return target.addService(service, newImplementation);
     };
-
   },
-
 };
 
 module.exports = (server) => {
