@@ -14,17 +14,18 @@ function Wave(call, callback) {
 
 let callStack = [];
 
-function one(call, next) {
+async function one(ctx, next) {
     callStack.push('one');
-    next();
+    await next();
+    callStack.push('one');
 }
 
-function two(call, next) {
+function two(ctx, next) {
     callStack.push('two');
     next();
 }
 
-function three(call, next) {
+function three(ctx, next) {
     callStack.push('three');
     next();
 }
@@ -86,19 +87,21 @@ describe('server-proxy', () => {
             client.Greet({ message: 'test' }, (err, res) => {
                 expect(err).toBeNull();
                 expect(res.message).toBe('Hello test');
-                expect(callStack).toHaveLength(4);
+                expect(callStack).toHaveLength(5);
                 expect(callStack[0]).toBe('one');
                 expect(callStack[1]).toBe('two');
                 expect(callStack[2]).toBe('three');
                 expect(callStack[3]).toBe('greet');
+                expect(callStack[4]).toBe('one');
                 client.Wave({ message: 'test' }, (err, res) => {
                     expect(err).toBeNull();
                     expect(res.message).toBe('Wave');
-                    expect(callStack).toHaveLength(8);
-                    expect(callStack[4]).toBe('one');
-                    expect(callStack[5]).toBe('two');
-                    expect(callStack[6]).toBe('three');
-                    expect(callStack[7]).toBe('wave');
+                    expect(callStack).toHaveLength(10);
+                    expect(callStack[5]).toBe('one');
+                    expect(callStack[6]).toBe('two');
+                    expect(callStack[7]).toBe('three');
+                    expect(callStack[8]).toBe('wave');
+                    expect(callStack[9]).toBe('one');
                     done();
                 });
             });
