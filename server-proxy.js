@@ -1,3 +1,5 @@
+const utils = require('./utils');
+
 const _interceptors = [];
 
 function* intercept() {
@@ -15,10 +17,12 @@ const handler = {
         }
         return (service, implementation) => {
             const newImplementation = {};
+            const lookup = utils.lookupServiceMetadata(service, implementation);
             for (const k in implementation) {
                 const name = k;
                 const fn = implementation[k];
                 newImplementation[name] = (call, callback) => {
+                    call.serviceMetadata = lookup(name);
                     const interceptors = intercept();
                     const first = interceptors.next();
                     if (!first.value) { // if we don't have any interceptors
