@@ -18,6 +18,7 @@ describe('lookup service metadata', () => {
         expect(result.name).toBe('Test.Messenger');
         expect(result.method).toBe('Wave');
         expect(result.type).toBe('unary');
+        expect(result.path).toBe('/Test.Messenger/Wave');
         done();
     });
 

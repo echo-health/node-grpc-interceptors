@@ -17,11 +17,12 @@ function lookupServiceMetadata(service, implementation) {
         .filter(k => lowercase(implementationKeys).indexOf(k) !== -1)
         .reduce((acc, k) => {
             const method = service[k];
-            const components = method.path.split('/'); 
+            const components = method.path.split('/');
             acc[k] = {
                 name: components[1],
                 method: components[2],
-                type: getType(method), 
+                type: getType(method),
+                path: method.path,
             };
             return acc;
         }, {});
