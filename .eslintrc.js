@@ -4,10 +4,10 @@ module.exports = {
   },
   "env": {
     "node": true,
-    "mocha": true,
     "es6": true
   },
-  "extends": ["eslint:recommended"],
+  "plugins": ["jest"],
+  "extends": ["eslint:recommended", "plugin:jest/recommended"],
   "rules": {
     "array-bracket-spacing": ["error", "never"],
     "arrow-spacing": "error",
@@ -15,7 +15,7 @@ module.exports = {
     "camelcase": "error",
     "comma-dangle": ["error", "always-multiline"],
     "default-case": "error",
-    "indent": ["error", 2],
+    "indent": ["error", 4],
     "linebreak-style": ["error", "unix"],
     "no-console": "warn",
     "no-multiple-empty-lines": "error",
