@@ -29,7 +29,9 @@ const handler = {
                     const interceptors = intercept();
                     const first = interceptors.next();
                     if (!first.value) { // if we don't have any interceptors
-                        return fn(call, callback);
+                        return new Promise(resolve => {
+                            return resolve(fn(call, callback));
+                        });
                     }
                     first.value(ctx, function next() {
                         return new Promise(resolve => {
