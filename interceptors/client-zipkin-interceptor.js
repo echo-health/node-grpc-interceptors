@@ -11,16 +11,16 @@ const tracer = new Tracer({
     }),
 });
 
-function getServiceName(path) {
-    return path.split('/').filter(Boolean)[0] || 'unknown';
-}
-
 const zipkinInterceptor = function (options, nextCall) {
+
+    const components = options.method_definition.path.split('/');
+    const remoteServiceName = components[1] || 'unknown';
+    const remoteMethodName = components[2] || 'unknown';
 
     const instrumentation = new Instrumentation.HttpClient({
         tracer: tracer,
-        serviceName: 'BLAH',
-        remoteGrpcServiceName: getServiceName(options.method_definition.path),
+        serviceName: 'unknown',
+        remoteGrpcServiceName: remoteServiceName,
     });
 
     return new grpc.InterceptingCall(nextCall(options), {
@@ -28,7 +28,12 @@ const zipkinInterceptor = function (options, nextCall) {
         start: function (metadata, listener, next) {
 
             // add zipkin trace data to request metadata
-            const { headers } = instrumentation.recordRequest({}, options.path, 'gRPC');
+            const { headers } = instrumentation.recordRequest(
+                {},
+                options.method_definition.path,
+                remoteMethodName,
+            );
+
             for(const k in headers) {
                 metadata.add(k, headers[k]);
             }

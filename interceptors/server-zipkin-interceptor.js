@@ -15,7 +15,7 @@ const zipkinInterceptor = async function (ctx, next) {
     const instrumentation = new Instrumentation.HttpServer({
         tracer: tracer,
         serviceName: ctx.service.name,
-        port: 50055,
+        port: process.env.PORT,
     });
 
     function readHeader(header) {
@@ -28,7 +28,7 @@ const zipkinInterceptor = async function (ctx, next) {
 
     const id = instrumentation.recordRequest(
         ctx.service.method,
-        'path',
+        ctx.service.path,
         readHeader
     );
 
