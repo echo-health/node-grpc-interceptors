@@ -22,19 +22,22 @@ const handler = {
                 const name = k;
                 const fn = implementation[k];
                 newImplementation[name] = (call, callback) => {
-                    call.serviceMetadata = lookup(name);
+                    const ctx = {
+                        call,
+                        service: lookup(name),
+                    };
                     const interceptors = intercept();
                     const first = interceptors.next();
                     if (!first.value) { // if we don't have any interceptors
                         return fn(call, callback);
                     }
-                    first.value(call, function next() {
+                    first.value(ctx, function next() {
                         return new Promise(resolve => {
                             const i = interceptors.next();
                             if (i.done) {
                                 return resolve(fn(call, callback));
                             }
-                            return resolve(i.value(call, next));
+                            return resolve(i.value(ctx, next));
                         });
                     });
                 };
