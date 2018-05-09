@@ -16,12 +16,16 @@ const handler = {
     return (service, implementation) => {
       const name = Object.keys(implementation)[0];
       const newImplementation = {
-        [name]: (...args) => {
+        [name]: (call, callback) => {
           const interceptors = intercept();
-          interceptors.next().value(...args, function n() {
-            const next = interceptors.next();
-            if (next.done) return implementation[name](...args);
-            return next.value(...args, n);
+          interceptors.next().value(call, function next() {
+            return new Promise(resolve => {
+              const i = interceptors.next();
+              if (i.done) {
+                return resolve(implementation[name](call, callback));
+              }
+              return resolve(next.value(call, next));
+            });
           });
         },
       };
