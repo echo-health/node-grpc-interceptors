@@ -11,7 +11,7 @@ module.exports = {
   "rules": {
     "array-bracket-spacing": ["error", "never"],
     "arrow-spacing": "error",
-    "callback-return": "error",
+    "callback-return": ["error", ["callback", "cb"]],
     "camelcase": "error",
     "comma-dangle": ["error", "always-multiline"],
     "default-case": "error",
@@ -19,6 +19,7 @@ module.exports = {
     "linebreak-style": ["error", "unix"],
     "no-console": "warn",
     "no-multiple-empty-lines": "error",
+    "no-return-await": "error",
     "no-template-curly-in-string": "error",
     "no-var": "error",
     "object-curly-spacing": ["error", "always"],

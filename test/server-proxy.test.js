@@ -1,17 +1,3 @@
-const grpc = require('grpc');
-const interceptors = require('../index');
-const proto = require('./proto');
-
-function Greet(call, callback) {
-    callStack.push('greet');
-    return callback(null, { message: `Hello ${call.request.message}` });
-}
-
-function Wave(call, callback) {
-    callStack.push('wave');
-    return callback(null, { message: 'Wave' });
-}
-
 let callStack = [];
 
 async function one(ctx, next) {
@@ -34,15 +20,10 @@ describe('server-proxy', () => {
 
     describe('without interceptors', () => {
 
-        let server;
-        let client;
+        const { server, client } = require('./test-service')(55051);
 
         beforeAll(() => {
-            server = interceptors.serverProxy(new grpc.Server());
-            server.addService(proto.Test.Messenger.service, { Greet, Wave });
-            server.bind('localhost:55051', grpc.ServerCredentials.createInsecure());
             server.start();
-            client = new proto.Test.Messenger('localhost:55051', grpc.credentials.createInsecure());
         });
 
         afterAll(() => {
@@ -54,8 +35,7 @@ describe('server-proxy', () => {
             client.Greet({ message: 'test' }, (err, res) => {
                 expect(err).toBeNull();
                 expect(res.message).toBe('Hello test');
-                expect(callStack).toHaveLength(1);
-                expect(callStack[0]).toBe('greet');
+                expect(callStack).toHaveLength(0);
                 done();
             });
         });
@@ -64,18 +44,13 @@ describe('server-proxy', () => {
 
     describe('with interceptors', () => {
 
-        let server;
-        let client;
+        const { server, client } = require('./test-service')(55052);
 
         beforeAll(() => {
-            server = interceptors.serverProxy(new grpc.Server());
-            server.addService(proto.Test.Messenger.service, { Greet, Wave });
-            server.bind('localhost:55052', grpc.ServerCredentials.createInsecure());
             server.use(one);
             server.use(two);
             server.use(three);
             server.start();
-            client = new proto.Test.Messenger('localhost:55052', grpc.credentials.createInsecure());
         });
 
         afterAll(() => {
@@ -87,21 +62,19 @@ describe('server-proxy', () => {
             client.Greet({ message: 'test' }, (err, res) => {
                 expect(err).toBeNull();
                 expect(res.message).toBe('Hello test');
-                expect(callStack).toHaveLength(5);
+                expect(callStack).toHaveLength(4);
                 expect(callStack[0]).toBe('one');
                 expect(callStack[1]).toBe('two');
                 expect(callStack[2]).toBe('three');
-                expect(callStack[3]).toBe('greet');
-                expect(callStack[4]).toBe('one');
+                expect(callStack[3]).toBe('one');
                 client.Wave({ message: 'test' }, (err, res) => {
                     expect(err).toBeNull();
                     expect(res.message).toBe('Wave');
-                    expect(callStack).toHaveLength(10);
-                    expect(callStack[5]).toBe('one');
-                    expect(callStack[6]).toBe('two');
-                    expect(callStack[7]).toBe('three');
-                    expect(callStack[8]).toBe('wave');
-                    expect(callStack[9]).toBe('one');
+                    expect(callStack).toHaveLength(8);
+                    expect(callStack[4]).toBe('one');
+                    expect(callStack[5]).toBe('two');
+                    expect(callStack[6]).toBe('three');
+                    expect(callStack[7]).toBe('one');
                     done();
                 });
             });
