@@ -24,7 +24,7 @@ const handler = {
               if (i.done) {
                 return resolve(implementation[name](call, callback));
               }
-              return resolve(next.value(call, next));
+              return resolve(i.value(call, next));
             });
           });
         },
