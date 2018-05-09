@@ -1,3 +1,10 @@
+function getType(method) {
+    if (method.requestStream === false && method.responseStream === false) {
+        return 'unary';
+    }
+    return 'unknown';
+}
+
 function lookupServiceMetadata(service, implementation) {
     const lowercase = coll => {
         return coll.map(k => {
@@ -12,8 +19,9 @@ function lookupServiceMetadata(service, implementation) {
                         const method = service[k];
                         const components = method.path.split('/') 
                         acc[k] = {
-                            service: components[1],
+                            name: components[1],
                             method: components[2],
+                            type: getType(method), 
                         };
                         return acc;
                     }, {});

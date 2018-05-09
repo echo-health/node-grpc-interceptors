@@ -15,8 +15,9 @@ describe('lookup service metadata', () => {
         const lookup = utils.lookupServiceMetadata(proto.Test.Messenger.service, {Greet, Wave});
         const result = lookup('Wave')
         expect(result).toBeDefined();
-        expect(result.service).toBe('Test.Messenger');
+        expect(result.name).toBe('Test.Messenger');
         expect(result.method).toBe('Wave');
+        expect(result.type).toBe('unary');
         done();
     });
 
