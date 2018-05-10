@@ -1,12 +1,14 @@
-.PHONY: prune install depcheck lint test
+.PHONY: clean prune install depcheck lint test
 
-all: depcheck lint test
+all: clean depcheck lint test
+
+clean:
+	rm -f package-lock.json
 
 prune:
 	npm prune
 
-install: prune
-	npm install
+install: package-lock.json
 
 depcheck: install
 	npm run depcheck
@@ -16,3 +18,6 @@ lint: install
 
 test: install
 	npm test
+
+package-lock.json:
+	npm install
