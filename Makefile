@@ -14,5 +14,5 @@ depcheck: install
 lint: install
 	npm run lint
 
-test:
+test: install
 	npm test
