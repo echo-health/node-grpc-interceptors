@@ -1,14 +1,19 @@
 const utils = require('./utils');
+const grpc = require('grpc');
 
-const _interceptors = [];
+const interceptors = [];
 
-function* intercept() {
-    let i = 0;
-    while (i < _interceptors.length) {
-        yield _interceptors[i];
-        i++;
-    }
-}
+const isNext = Symbol('isNext');
+
+const compose = (...mw) =>
+    async function(...args) {
+        const nxt = args[args.length - 1][isNext] ? args.pop() : () => {};
+        await mw.reduceRight((next, curr) =>
+            async function() {
+                next[isNext] = true;
+                await curr(...args.concat(next));
+            }, nxt)();
+    };
 
 const handler = {
     get(target, propKey) {
@@ -21,27 +26,26 @@ const handler = {
             for (const k in implementation) {
                 const name = k;
                 const fn = implementation[k];
-                newImplementation[name] = (call, callback) => {
+                newImplementation[name] = async (call, callback) => {
                     const ctx = {
                         call,
                         service: lookup(name),
                     };
-                    const interceptors = intercept();
-                    const first = interceptors.next();
-                    if (!first.value) { // if we don't have any interceptors
-                        return new Promise(resolve => {
-                            return resolve(fn(call, callback));
-                        });
-                    }
-                    first.value(ctx, function next() {
-                        return new Promise(resolve => {
-                            const i = interceptors.next();
-                            if (i.done) {
-                                return resolve(fn(call, callback));
+                    const newCallback = callback => {
+                        return (...args) => {
+                            ctx.status = {
+                                code: grpc.status.OK,
+                            };
+                            const err = args[0];
+                            if (err) {
+                                ctx.status = err;
                             }
-                            return resolve(i.value(ctx, next));
-                        });
-                    });
+                            callback(...args);
+                        };
+                    };
+                    
+                    compose(...interceptors)(ctx);
+                    await fn(call, newCallback(callback));
                 };
             }
             return target.addService(service, newImplementation);
@@ -51,7 +55,7 @@ const handler = {
 
 module.exports = (server) => {
     server.use = fn => {
-        _interceptors.push(fn);
+        interceptors.push(fn);
     };
     return new Proxy(server, handler);
 };

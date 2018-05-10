@@ -6,14 +6,14 @@ async function one(ctx, next) {
     callStack.push('one');
 }
 
-function two(ctx, next) {
+async function two(ctx, next) {
     callStack.push('two');
-    next();
+    await next();
 }
 
-function three(ctx, next) {
+async function three(ctx, next) {
     callStack.push('three');
-    next();
+    await next();
 }
 
 describe('server-proxy', () => {

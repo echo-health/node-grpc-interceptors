@@ -23,6 +23,7 @@ function lookupServiceMetadata(service, implementation) {
                 method: components[2],
                 type: getType(method),
                 path: method.path,
+                responseType: method.responseType,
             };
             return acc;
         }, {});
