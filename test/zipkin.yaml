@@ -5,6 +5,9 @@ metadata:
 spec:
   containers:
   - image: openzipkin/zipkin
+    env:
+    - name: JAVA_OPTS
+      value: -Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
     imagePullPolicy: IfNotPresent
     name: zipkin
     ports:
