@@ -1,12 +1,11 @@
 {
-  "name": "grpc-interceptor",
+  "name": "@echo-health/grpc-interceptors",
   "version": "0.0.1",
   "scripts": {
     "test": "jest",
     "lint": "eslint . --fix",
     "depcheck": "depcheck --ignores=eslint-config-plugin:*"
   },
-  "private": true,
   "dependencies": {
     "grpc": "^1.11.1",
     "koa-compose": "^4.0.0",
