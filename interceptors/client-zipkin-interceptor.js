@@ -3,64 +3,66 @@ const { Instrumentation, Tracer, BatchRecorder, ExplicitContext } = require('zip
 const { HttpLogger } = require('zipkin-transport-http');
 
 const tracer = new Tracer({
-  ctxImpl: new ExplicitContext(),
-  recorder: new BatchRecorder({
-    logger: new HttpLogger({
-      endpoint: process.env.ZIPKIN_URL || 'http://localhost:9411/api/v2/spans',
+    ctxImpl: new ExplicitContext(),
+    recorder: new BatchRecorder({
+        logger: new HttpLogger({
+            endpoint: process.env.ZIPKIN_URL || 'http://localhost:9411/api/v2/spans',
+        }),
     }),
-  }),
 });
-
-function getServiceName(path) {
-  if (!path) {
-    return '';
-  }
-  return path.split('/')[0];
-}
 
 const zipkinInterceptor = function (options, nextCall) {
 
-  const instrumentation = new Instrumentation.HttpClient({
-    tracer: tracer,
-    serviceName: global.LOCAL_SERVICE_NAME,
-    remoteGrpcServiceName: getServiceName(options.path) || 'unknown',
-  });
+    const components = options.method_definition.path.split('/');
+    const remoteServiceName = components[1] || 'unknown';
+    const remoteMethodName = components[2] || 'unknown';
 
-  return new grpc.InterceptingCall(nextCall(options), {
+    const instrumentation = new Instrumentation.HttpClient({
+        tracer: tracer,
+        serviceName: 'unknown',
+        remoteGrpcServiceName: remoteServiceName,
+    });
 
-    start: function (metadata, listener, next) {
+    return new grpc.InterceptingCall(nextCall(options), {
 
-      // add zipkin trace data to request metadata
-      const { headers } = instrumentation.recordRequest({}, options.path, 'gRPC');
-      for(const k in headers) {
-        metadata.add(k, headers[k]);
-      }
+        start: function (metadata, listener, next) {
 
-      next(metadata, {
-        onReceiveMetadata: function (metadata, next) {
-          next(metadata);
+            // add zipkin trace data to request metadata
+            const { headers } = instrumentation.recordRequest(
+                {},
+                options.method_definition.path,
+                remoteMethodName,
+            );
+
+            for(const k in headers) {
+                metadata.add(k, headers[k]);
+            }
+
+            next(metadata, {
+                onReceiveMetadata: function (metadata, next) {
+                    next(metadata);
+                },
+                onReceiveMessage: function (message, next) {
+                    next(message);
+                },
+                onReceiveStatus: function (status, next) {
+                    if (status.code !== grpc.status.OK) {
+                        instrumentation.recordError(tracer.id, status.details);
+                    } else {
+                        instrumentation.recordResponse(tracer.id, status.code);
+                    }
+                    next(status);
+                },
+
+            });
         },
-        onReceiveMessage: function (message, next) {
-          next(message);
+        sendMessage: function (message, next) {
+            next(message);
         },
-        onReceiveStatus: function (status, next) {
-          if (status.code !== grpc.status.OK) {
-            instrumentation.recordError(tracer.id, status.details);
-          } else {
-            instrumentation.recordResponse(tracer.id, status.code);
-          }
-          next(status);
+        halfClose: function (next) {
+            next();
         },
-
-      });
-    },
-    sendMessage: function (message, next) {
-      next(message);
-    },
-    halfClose: function (next) {
-      next();
-    },
-  });
+    });
 
 };
 
