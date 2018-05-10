@@ -77,7 +77,6 @@ describe('server-proxy', () => {
                     expect(callStack[7]).toBe('one');
                     done();
                 });
-                done();
             });
         });
 
