@@ -1,19 +1,10 @@
 const utils = require('./utils');
 const grpc = require('grpc');
+const compose = require('koa-compose');
 
 const interceptors = [];
 
 const isNext = Symbol('isNext');
-
-const compose = (...mw) =>
-    async function(...args) {
-        const nxt = args[args.length - 1][isNext] ? args.pop() : () => {};
-        await mw.reduceRight((next, curr) =>
-            async function() {
-                next[isNext] = true;
-                await curr(...args.concat(next));
-            }, nxt)();
-    };
 
 const handler = {
     get(target, propKey) {
@@ -44,7 +35,7 @@ const handler = {
                         };
                     };
                     
-                    compose(...interceptors)(ctx);
+                    compose(interceptors)(ctx);
                     await fn(call, newCallback(callback));
                 };
             }
