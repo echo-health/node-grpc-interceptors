@@ -16,11 +16,14 @@ afterAll(() => {
 });
 
 test('zipkin-interceptor', done => {
-    client.use(interceptors.clientZipkinInterceptor('test.service'));
+    jest.setTimeout(10000);
+    client.use(interceptors.clientZipkinInterceptor('Test.Service'));
     server.use(interceptors.serverZipkinInterceptor);
     client.Greet({ message: null }, (err, res) => {
         expect(err).toBeNull();
         expect(res.message).toBe('Hello ');
-        done();
+        setTimeout(() => {
+            done();
+        }, 6000);
     });
 });
