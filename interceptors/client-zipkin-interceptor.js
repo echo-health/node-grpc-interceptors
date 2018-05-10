@@ -11,6 +11,8 @@ const tracer = new Tracer({
     }),
 });
 
+let clientServiceName;
+
 const zipkinInterceptor = function (options, nextCall) {
 
     const components = options.method_definition.path.split('/');
@@ -19,7 +21,7 @@ const zipkinInterceptor = function (options, nextCall) {
 
     const instrumentation = new Instrumentation.HttpClient({
         tracer: tracer,
-        serviceName: 'unknown',
+        serviceName: clientServiceName,
         remoteGrpcServiceName: remoteServiceName,
     });
 
@@ -27,33 +29,50 @@ const zipkinInterceptor = function (options, nextCall) {
 
         start: function (metadata, listener, next) {
 
-            // add zipkin trace data to request metadata
-            const { headers } = instrumentation.recordRequest(
-                {},
-                options.method_definition.path,
-                remoteMethodName,
-            );
+            tracer.scoped(() => {
 
-            for(const k in headers) {
-                metadata.add(k, headers[k]);
-            }
+                // add zipkin trace data to request metadata
+                console.log('CLIENT: recordRequest');
+                const request = {};
+                const path = options.method_definition.path;
+                const method = remoteMethodName;
+                console.log({ request, path, method });
+                const { headers } = instrumentation.recordRequest(
+                    request,
+                    path,
+                    method,
+                );
 
-            next(metadata, {
-                onReceiveMetadata: function (metadata, next) {
-                    next(metadata);
-                },
-                onReceiveMessage: function (message, next) {
-                    next(message);
-                },
-                onReceiveStatus: function (status, next) {
-                    if (status.code !== grpc.status.OK) {
-                        instrumentation.recordError(tracer.id, status.details);
-                    } else {
-                        instrumentation.recordResponse(tracer.id, status.code);
-                    }
-                    next(status);
-                },
+                for(const k in headers) {
+                    metadata.add(k, headers[k]);
+                }
 
+                console.log('CLIENT: added trace info to metadata');
+                console.log(metadata);
+
+                next(metadata, {
+                    onReceiveMetadata: function (metadata, next) {
+                        next(metadata);
+                    },
+                    onReceiveMessage: function (message, next) {
+                        next(message);
+                    },
+                    onReceiveStatus: function (status, next) {
+                        if (status.code !== grpc.status.OK) {
+                            console.log('CLIENT: recordError');
+                            console.log(tracer.id);
+                            console.log(status);
+                            instrumentation.recordError(tracer.id, status.details);
+                        } else {
+                            console.log('CLIENT: recordResponse');
+                            console.log(tracer.id);
+                            console.log(status);
+                            instrumentation.recordResponse(tracer.id, status.code);
+                        }
+                        next(status);
+                    },
+
+                });
             });
         },
         sendMessage: function (message, next) {
@@ -66,4 +85,7 @@ const zipkinInterceptor = function (options, nextCall) {
 
 };
 
-module.exports = zipkinInterceptor;
+module.exports = serviceName => {
+    clientServiceName = serviceName || 'unknown';
+    return zipkinInterceptor;
+};

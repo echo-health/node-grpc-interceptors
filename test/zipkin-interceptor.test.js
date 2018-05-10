@@ -15,8 +15,8 @@ afterAll(() => {
     server.forceShutdown();
 });
 
-xtest('zipkin-interceptor', done => {
-    client.use(interceptors.clientZipkinInterceptor);
+test('zipkin-interceptor', done => {
+    client.use(interceptors.clientZipkinInterceptor('test.service'));
     server.use(interceptors.serverZipkinInterceptor);
     client.Greet({ message: null }, (err, res) => {
         expect(err).toBeNull();
