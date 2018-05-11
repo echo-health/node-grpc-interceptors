@@ -23,10 +23,8 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-    expect(nock.isDone()).toBe(true);
-    jest.useRealTimers();
-    nock.restore();
     server.forceShutdown();
+    nock.restore();
 });
 
 test('zipkin-interceptor', done => {
@@ -48,6 +46,7 @@ test('zipkin-interceptor', done => {
             expect(body.annotations[0].endpoint.serviceName).toBe('test.messenger');
             expect(body.annotations[1].value).toBe('ss');
             expect(body.annotations[1].endpoint.serviceName).toBe('test.messenger');
+
         });
 
     // Expected POST to zipkin from client
@@ -67,22 +66,25 @@ test('zipkin-interceptor', done => {
             expect(body.annotations[0].endpoint.serviceName).toBe('test.service');
             expect(body.annotations[1].value).toBe('cr');
             expect(body.annotations[1].endpoint.serviceName).toBe('test.service');
-            done();
         });
 
     // instrument the client & server with the zipkin interceptor
     client.use(interceptors.clientZipkinInterceptor('Test.Service'));
     server.use(interceptors.serverZipkinInterceptor);
 
-    // use fake timers so we don't have to wait for the zipkin BatchRecorder to fire
-    jest.useFakeTimers();
-
     // make the gRPC call from client to server
     client.Greet({ message: null }, err => {
+
         expect(err).toBeNull();
-        // Only fire the timers AFTER the client has received the response from the server.
-        // At this point we know both the client and server have finished with zipkin
-        jest.runOnlyPendingTimers();
+
+        // wait for nock requests to complete before calling done()
+        const timer = setInterval(() => {
+            if (nock.isDone()) {
+                clearInterval(timer);
+                done();
+            }
+        }, 500);
+
     });
 
     // results are asserted in the nock reply() callbacks at the top of this test
