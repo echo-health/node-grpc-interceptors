@@ -20,8 +20,8 @@ const zipkinInterceptor = async function (ctx, next) {
 
     function readHeader(header) {
         const val = ctx.call.metadata.get(header);
-        if (val) {
-            return new option.Some(val);
+        if (val.length) {
+            return new option.Some(val[0]);
         }
         return option.None;
     }
