@@ -3,7 +3,7 @@ const getType = method => {
         return 'unary';
     }
     return 'unknown';
-}
+};
 
 const toLowerCamelCase = str => {
     return str.charAt(0).toLowerCase() + str.slice(1);
@@ -14,7 +14,7 @@ const lookupServiceMetadata = (service, implementation) => {
     const implementationKeys = Object.keys(implementation);
     const intersectingMethods = serviceKeys
         .filter(k => {
-            return implementationKeys.map(k => toLowerCamelCase(k)).indexOf(k) !== -1
+            return implementationKeys.map(k => toLowerCamelCase(k)).indexOf(k) !== -1;
         })
         .reduce((acc, k) => {
             const method = service[k];
@@ -35,10 +35,10 @@ const lookupServiceMetadata = (service, implementation) => {
 
     return key => {
         return Object.keys(intersectingMethods)
-        .filter(k => toLowerCamelCase(key) === k)
-        .map(k => intersectingMethods[k]).pop();
-    }
-}
+            .filter(k => toLowerCamelCase(key) === k)
+            .map(k => intersectingMethods[k]).pop();
+    };
+};
 
 module.exports = {
     lookupServiceMetadata,
