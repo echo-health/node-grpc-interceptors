@@ -27,7 +27,10 @@ const handler = {
                             };
                             const err = args[0];
                             if (err) {
-                                ctx.status = err;
+                                ctx.status = {
+                                    code: grpc.status.UNKNOWN,
+                                    details: err,
+                                };
                             }
                             callback(...args);
                         };
