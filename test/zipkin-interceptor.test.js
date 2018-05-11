@@ -29,6 +29,8 @@ afterAll(() => {
 
 test('zipkin-interceptor', done => {
 
+    expect.assertions(25);
+
     // Expected POST to zipkin from server
     nock(zipkinHostname)
         .post(zipkinPath)
