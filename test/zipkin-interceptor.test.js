@@ -23,6 +23,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
+    expect(nock.isDone()).toBe(true);
     jest.useRealTimers();
     nock.restore();
     server.forceShutdown();
