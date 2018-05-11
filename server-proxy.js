@@ -1,8 +1,15 @@
 const utils = require('./utils');
 const grpc = require('grpc');
-const compose = require('koa-compose');
 
-const interceptors = [];
+const _interceptors = [];
+
+function* intercept() {
+    let i = 0;
+    while (i < _interceptors.length) {
+        yield _interceptors[i];
+        i++;
+    }
+}
 
 const handler = {
     get(target, propKey) {
@@ -15,7 +22,7 @@ const handler = {
             for (const k in implementation) {
                 const name = k;
                 const fn = implementation[k];
-                newImplementation[name] = async (call, callback) => {
+                newImplementation[name] = (call, callback) => {
                     const ctx = {
                         call,
                         service: lookup(name),
@@ -33,11 +40,25 @@ const handler = {
                                 };
                             }
                             callback(...args);
-                        };
-                    };
-                    
-                    compose(interceptors)(ctx);
-                    await fn(call, newCallback(callback));
+                        }
+                    }
+
+                    const interceptors = intercept();
+                    const first = interceptors.next();
+                    if (!first.value) { // if we don't have any interceptors
+                        return new Promise(resolve => {
+                            return resolve(fn(call, newCallback(callback)));
+                        });
+                    }
+                    first.value(ctx, function next() {
+                        return new Promise(resolve => {
+                            const i = interceptors.next();
+                            if (i.done) {
+                                return resolve(fn(call, newCallback(callback)));
+                            }
+                            return resolve(i.value(ctx, next));
+                        });
+                    });
                 };
             }
             return target.addService(service, newImplementation);
@@ -47,7 +68,7 @@ const handler = {
 
 module.exports = (server) => {
     server.use = fn => {
-        interceptors.push(fn);
+        _interceptors.push(fn);
     };
     return new Proxy(server, handler);
 };
