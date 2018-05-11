@@ -10,9 +10,13 @@ function Wave(call, callback) {
     return callback(null, { message: 'Wave' });
 }
 
+function WaveAgain(call, callback) {
+    return callback(null, { message: 'Wave' });
+}
+
 module.exports = port => {
     const server = interceptors.serverProxy(new grpc.Server());
-    server.addService(proto.Test.Messenger.service, { Greet, Wave });
+    server.addService(proto.Test.Messenger.service, { Greet, Wave, WaveAgain });
     server.bind(`localhost:${port}`, grpc.ServerCredentials.createInsecure());
     const client = interceptors.clientProxy(new proto.Test.Messenger(`localhost:${port}`, grpc.credentials.createInsecure()));
     return { server, client };

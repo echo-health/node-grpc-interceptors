@@ -4,6 +4,7 @@ package Test;
 service Messenger {
   rpc Greet (MessageRequest) returns (MessageReply) {}
   rpc Wave (MessageRequest) returns (MessageReply) {} 
+  rpc WaveAgain (MessageRequest) returns (MessageReply) {} 
 }
 
 message MessageRequest {
