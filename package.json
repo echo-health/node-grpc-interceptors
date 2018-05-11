@@ -1,6 +1,6 @@
 {
   "name": "@echo-health/grpc-interceptors",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "scripts": {
     "test": "jest",
     "lint": "eslint . --fix",
@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "grpc": "^1.11.1",
-    "koa-compose": "^4.0.0",
     "zipkin": "^0.12.0",
     "zipkin-transport-http": "^0.12.0"
   },
