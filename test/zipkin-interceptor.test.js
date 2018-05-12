@@ -31,48 +31,42 @@ test('zipkin-interceptor', done => {
 
     expect.assertions(25);
 
-    // Expected POST to zipkin from server
-    nock(zipkinHostname)
-        .post(zipkinPath)
-        .reply(202, (path, body) => {
-            expect(body).toHaveLength(1);
-            body = body[0];
-            expect(body).toHaveProperty('traceId');
-            expect(body).toHaveProperty('id');
-            expect(body.id).toBe(body.traceId);
-            expect(body).toHaveProperty('name');
-            expect(body.name).toBe('greet');
-            expect(body).toHaveProperty('annotations');
-            expect(body.annotations).toHaveLength(2);
-            expect(body.annotations[0].value).toBe('sr');
-            expect(body.annotations[0].endpoint.serviceName).toBe('test.messenger');
-            expect(body.annotations[1].value).toBe('ss');
-            expect(body.annotations[1].endpoint.serviceName).toBe('test.messenger');
+    const tests = [
+        {
+            serviceName: 'test.messenger.server', // Server POST
+            annotations: [{ value: 'sr' }, { value: 'ss' }],
+        },
+        {
+            serviceName: 'test.messenger.client', // Client POST
+            annotations: [{ value: 'cs' }, { value: 'cr' }],
+        },
+    ];
 
-        });
+    // Use nock to set the expected POST requests to zipkin
+    for (const t of tests.reverse()) {
+        nock(zipkinHostname)
+            .post(zipkinPath)
+            .reply(202, (path, body) => {
+                expect(body).toHaveLength(1);
+                body = body[0];
+                expect(body).toHaveProperty('traceId');
+                expect(body).toHaveProperty('id');
+                expect(body.id).toBe(body.traceId);
+                expect(body).toHaveProperty('name');
+                expect(body.name).toBe('greet');
+                expect(body).toHaveProperty('annotations');
+                expect(body.annotations).toHaveLength(2);
+                expect(body.annotations[0].value).toBe(t.annotations[0].value);
+                expect(body.annotations[0].endpoint.serviceName).toBe(t.serviceName);
+                expect(body.annotations[1].value).toBe(t.annotations[1].value);
+                expect(body.annotations[1].endpoint.serviceName).toBe(t.serviceName);
+            });
 
-    // Expected POST to zipkin from client
-    nock(zipkinHostname)
-        .post(zipkinPath)
-        .reply(202, (path, body) => {
-            expect(body).toHaveLength(1);
-            body = body[0];
-            expect(body).toHaveProperty('traceId');
-            expect(body).toHaveProperty('id');
-            expect(body.id).toBe(body.traceId);
-            expect(body).toHaveProperty('name');
-            expect(body.name).toBe('greet');
-            expect(body).toHaveProperty('annotations');
-            expect(body.annotations).toHaveLength(2);
-            expect(body.annotations[0].value).toBe('cs');
-            expect(body.annotations[0].endpoint.serviceName).toBe('test.service');
-            expect(body.annotations[1].value).toBe('cr');
-            expect(body.annotations[1].endpoint.serviceName).toBe('test.service');
-        });
+    }
 
     // instrument the client & server with the zipkin interceptor
-    client.use(interceptors.clientZipkinInterceptor('Test.Service'));
-    server.use(interceptors.serverZipkinInterceptor);
+    client.use(interceptors.clientZipkinInterceptor('Test.Messenger.Client'));
+    server.use(interceptors.serverZipkinInterceptor('Test.Messenger.Server'));
 
     // make the gRPC call from client to server
     client.Greet({ message: null }, err => {
