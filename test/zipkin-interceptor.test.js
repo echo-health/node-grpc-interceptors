@@ -33,17 +33,17 @@ test('zipkin-interceptor', done => {
 
     const tests = [
         {
-            serviceName: 'test.messenger.server', // Server POST
-            annotations: [{ value: 'sr' }, { value: 'ss' }],
-        },
-        {
             serviceName: 'test.messenger.client', // Client POST
             annotations: [{ value: 'cs' }, { value: 'cr' }],
+        },
+        {
+            serviceName: 'test.messenger.server', // Server POST
+            annotations: [{ value: 'sr' }, { value: 'ss' }],
         },
     ];
 
     // Use nock to set the expected POST requests to zipkin
-    for (const t of tests.reverse()) {
+    for (const t of tests) {
         nock(zipkinHostname)
             .post(zipkinPath)
             .reply(202, (path, body) => {
