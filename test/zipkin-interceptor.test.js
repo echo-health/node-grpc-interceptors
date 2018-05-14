@@ -73,6 +73,10 @@ test('zipkin-interceptor', done => {
 
         expect(err).toBeNull();
 
+        if (process.env.NOCK_OFF) {
+            return setTimeout(done, 3000);
+        }
+
         // wait for nock requests to complete before calling done()
         const timer = setInterval(() => {
             if (nock.isDone()) {
