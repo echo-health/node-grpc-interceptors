@@ -2,26 +2,14 @@ const grpc = require('grpc');
 const { Instrumentation, Tracer, BatchRecorder, ExplicitContext } = require('zipkin');
 const { HttpLogger } = require('zipkin-transport-http');
 
-const tracer = new Tracer({
-    ctxImpl: new ExplicitContext(),
-    recorder: new BatchRecorder({
-        logger: new HttpLogger({
-            endpoint: process.env.ZIPKIN_URL || 'http://localhost:9411/api/v2/spans',
-        }),
-    }),
-});
-
 const zipkinInterceptor = function (options, nextCall) {
 
+    const tracer = this; // 'this' is bound to the tracer created in the module exports
+
     const components = options.method_definition.path.split('/');
-    const remoteServiceName = components[1] || 'unknown';
     const remoteMethodName = components[2] || 'unknown';
 
-    const instrumentation = new Instrumentation.HttpClient({
-        tracer: tracer,
-        serviceName: 'unknown',
-        remoteGrpcServiceName: remoteServiceName,
-    });
+    const instrumentation = new Instrumentation.HttpClient({ tracer });
 
     return new grpc.InterceptingCall(nextCall(options), {
 
@@ -53,8 +41,8 @@ const zipkinInterceptor = function (options, nextCall) {
                     }
                     next(status);
                 },
-
             });
+
         },
         sendMessage: function (message, next) {
             next(message);
@@ -66,4 +54,15 @@ const zipkinInterceptor = function (options, nextCall) {
 
 };
 
-module.exports = zipkinInterceptor;
+module.exports = localServiceName => {
+    const tracer = new Tracer({
+        ctxImpl: new ExplicitContext(),
+        recorder: new BatchRecorder({
+            logger: new HttpLogger({
+                endpoint: process.env.ZIPKIN_URL || 'http://localhost:9411/api/v2/spans',
+            }),
+        }),
+        localServiceName,
+    });
+    return zipkinInterceptor.bind(tracer);
+};

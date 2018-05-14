@@ -1,16 +1,6 @@
 const utils = require('./utils');
 const grpc = require('grpc');
 
-const _interceptors = [];
-
-function* intercept() {
-    let i = 0;
-    while (i < _interceptors.length) {
-        yield _interceptors[i];
-        i++;
-    }
-}
-
 const handler = {
     get(target, propKey) {
         if (propKey !== 'addService') {
@@ -40,10 +30,10 @@ const handler = {
                                 };
                             }
                             callback(...args);
-                        }
-                    }
+                        };
+                    };
 
-                    const interceptors = intercept();
+                    const interceptors = target.intercept();
                     const first = interceptors.next();
                     if (!first.value) { // if we don't have any interceptors
                         return new Promise(resolve => {
@@ -67,8 +57,16 @@ const handler = {
 };
 
 module.exports = (server) => {
+    server.interceptors = [];
     server.use = fn => {
-        _interceptors.push(fn);
+        server.interceptors.push(fn);
+    };
+    server.intercept = function* intercept() {
+        let i = 0;
+        while (i < server.interceptors.length) {
+            yield server.interceptors[i];
+            i++;
+        }
     };
     return new Proxy(server, handler);
 };

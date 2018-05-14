@@ -1,5 +1,3 @@
-const _interceptors = [];
-
 const handler = {
 
     // set up the proxy get handler
@@ -48,7 +46,7 @@ const handler = {
                 options.interceptors = [];
             }
 
-            options.interceptors = options.interceptors.concat(_interceptors);
+            options.interceptors = options.interceptors.concat(target.interceptors);
 
             return origFunc.call(target, message, options, callback);
 
@@ -59,8 +57,9 @@ const handler = {
 };
 
 module.exports = (client) => {
+    client.interceptors = [];
     client.use = fn => {
-        _interceptors.push(fn);
+        client.interceptors.push(fn);
     };
     return new Proxy(client, handler);
 };
