@@ -4,7 +4,7 @@ metadata:
   name: zipkin
 spec:
   containers:
-  - image: openzipkin/zipkin
+  - image: openzipkin/zipkin:2.4.5
     env:
     - name: JAVA_OPTS
       value: -Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG

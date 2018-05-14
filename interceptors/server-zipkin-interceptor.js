@@ -4,8 +4,8 @@ const { HttpLogger } = require('zipkin-transport-http');
 const zipkinInterceptor = async function (ctx, next) {
 
     const tracer = this; // 'this' is bound to the tracer created in the module exports
-    
-    const serviceName = tracer._localEndpoint.serviceName || ctx.service.name || 'unknown';
+
+    const serviceName = tracer._localEndpoint.serviceName || 'unknown';
     const port = process.env.PORT || 0;
 
     const instrumentation = new Instrumentation.HttpServer({

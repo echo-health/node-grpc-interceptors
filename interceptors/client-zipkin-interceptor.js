@@ -7,13 +7,9 @@ const zipkinInterceptor = function (options, nextCall) {
     const tracer = this; // 'this' is bound to the tracer created in the module exports
 
     const components = options.method_definition.path.split('/');
-    const remoteServiceName = components[1] || 'unknown';
     const remoteMethodName = components[2] || 'unknown';
 
-    const instrumentation = new Instrumentation.HttpClient({
-        tracer,
-        remoteServiceName,
-    });
+    const instrumentation = new Instrumentation.HttpClient({ tracer });
 
     return new grpc.InterceptingCall(nextCall(options), {
 
