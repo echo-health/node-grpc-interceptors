@@ -1,8 +1,10 @@
 module.exports = {
     clientProxy: (client) => { return require('./client-proxy')(client); },
     serverProxy: (server) => { return require('./server-proxy')(server); },
-    clientZipkinInterceptor: clientServiceName => {
-        return require('./interceptors/client-zipkin-interceptor')(clientServiceName);
+    clientZipkinInterceptor: serviceName => {
+        return require('./interceptors/client-zipkin-interceptor')(serviceName);
     },
-    serverZipkinInterceptor: require('./interceptors/server-zipkin-interceptor'),
+    serverZipkinInterceptor: serviceName => {
+        return require('./interceptors/server-zipkin-interceptor')(serviceName);
+    },
 };
