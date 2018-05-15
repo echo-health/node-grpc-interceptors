@@ -1,5 +1,5 @@
 const { HttpLogger } = require('zipkin-transport-http');
-const { Tracer, ConsoleRecorder, BatchRecorder, ExplicitContext } = require('zipkin');
+const { Tracer, BatchRecorder, ExplicitContext } = require('zipkin');
 
 module.exports = localServiceName => {
     let recorder;
@@ -11,7 +11,9 @@ module.exports = localServiceName => {
             }),
         });
     } else {
-        recorder = new ConsoleRecorder();
+        recorder = {
+            record() {},
+        };
     }
 
     return new Tracer({
