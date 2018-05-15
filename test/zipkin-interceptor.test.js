@@ -3,7 +3,7 @@ const url = require('url');
 const nock = require('nock');
 
 const zipkinHostname = 'http://localhost:9411';
-const zipkinPath = '/api/v2/spans';
+const zipkinPath = '/api/v1/spans';
 
 let server;
 let client;
