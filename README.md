@@ -1,4 +1,7 @@
 # grpc-interceptors
+
+@theo.gravity - Modified to work with our proto-loader impl. Removes all the `toLowerCamelCase` references.
+
 This library provides a way to instrument Node.js gRPC clients and servers with interceptors/middleware e.g. for Prometheus metrics, Zipkin tracing etc.
 
 ### Usage

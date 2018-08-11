@@ -1,5 +1,5 @@
 {
-  "name": "@echo-health/grpc-interceptors",
+  "name": "@vivlabs/grpc-interceptors",
   "version": "0.0.12",
   "scripts": {
     "test": "jest",
@@ -33,5 +33,8 @@
     "url": "https://github.com/echo-health/node-grpc-interceptors/issues"
   },
   "homepage": "https://github.com/echo-health/node-grpc-interceptors#readme",
-  "description": ""
+  "description": "",
+  "jest": {
+    "testEnvironment": "node"
+  }
 }
