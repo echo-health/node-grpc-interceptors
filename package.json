@@ -6,6 +6,9 @@
     "lint": "eslint . --fix",
     "depcheck": "depcheck --ignores=eslint-config-plugin:*"
   },
+  "jest": {
+    "testURL": "http://localhost"
+  },
   "dependencies": {
     "grpc": "^1.11.1",
     "zipkin": "^0.12.0",
