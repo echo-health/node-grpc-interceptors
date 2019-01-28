@@ -35,6 +35,7 @@ const handler = {
 
                     const interceptors = target.intercept();
                     const first = interceptors.next();
+                    const errorCb = grpcServiceError => callback(grpcServiceError, null);
                     if (!first.value) { // if we don't have any interceptors
                         return new Promise(resolve => {
                             return resolve(fn(call, newCallback(callback)));
@@ -48,7 +49,7 @@ const handler = {
                             }
                             return resolve(i.value(ctx, next));
                         });
-                    });
+                    }, errorCb);
                 };
             }
             return target.addService(service, newImplementation);
