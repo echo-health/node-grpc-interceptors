@@ -1,5 +1,5 @@
 {
-  "name": "@echo-health/grpc-interceptors",
+  "name": "@pionerlabs/grpc-interceptors",
   "version": "0.0.12",
   "scripts": {
     "test": "jest",
