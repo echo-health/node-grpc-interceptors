@@ -1,6 +1,6 @@
 {
   "name": "@pionerlabs/grpc-interceptors",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "scripts": {
     "test": "jest",
     "lint": "eslint . --fix",

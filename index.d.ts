@@ -1,4 +1,4 @@
-declare module '@echo-health/grpc-interceptors' {
+declare module '@pionerlabs/grpc-interceptors' {
   import grpc from 'grpc';
 
   function serverProxy(server: grpc.Server): ServerProxy;
