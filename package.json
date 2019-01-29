@@ -25,6 +25,7 @@
     "grpc": "^1.17.0"
   },
   "main": "index.js",
+  "typings": "./index.d.ts",
   "directories": {
     "test": "test"
   },
