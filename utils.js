@@ -9,9 +9,17 @@ const toLowerCamelCase = str => {
     return str.charAt(0).toLowerCase() + str.slice(1);
 };
 
+const getAllPropertyNames = (obj) => {
+    var props = [];
+    do {
+        props= props.concat(Object.getOwnPropertyNames(obj ));
+    } while (obj = Object.getPrototypeOf(obj));
+    return props;
+};
+
 const lookupServiceMetadata = (service, implementation) => {
     const serviceKeys = Object.keys(service);
-    const implementationKeys = Object.keys(implementation);
+    const implementationKeys = getAllPropertyNames(implementation);
     const intersectingMethods = serviceKeys
         .filter(k => {
             return implementationKeys.map(k => toLowerCamelCase(k)).indexOf(k) !== -1;
