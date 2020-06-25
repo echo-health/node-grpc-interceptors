@@ -1,18 +1,16 @@
 {
   "name": "@vivlabs/grpc-interceptors",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "test": "jest",
-    "lint": "eslint . --fix",
-    "depcheck": "depcheck --ignores=eslint-config-plugin:*"
+    "lint": "eslint . --fix"
   },
   "dependencies": {
-    "grpc": "^1.11.1",
+    "grpc": "^1.24.3",
     "zipkin": "^0.12.0",
     "zipkin-transport-http": "^0.12.0"
   },
   "devDependencies": {
-    "depcheck": "^0.6.9",
     "eslint": "^4.14.0",
     "eslint-plugin-jest": "^21.15.1",
     "jest": "^22.4.3",
