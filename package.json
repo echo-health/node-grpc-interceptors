@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "grpc": "^1.24.3",
+    "node-fetch": "^2.6.1",
     "zipkin": "^0.22.0",
     "zipkin-transport-http": "^0.22.0"
   },
