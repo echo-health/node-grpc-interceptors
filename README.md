@@ -5,6 +5,7 @@
 This library provides a way to instrument Node.js gRPC clients and servers with interceptors/middleware e.g. for Prometheus metrics, Zipkin tracing etc.
 
 ### Usage
+
 ```js
 const interceptors = require('grpc-interceptors');
 
@@ -26,6 +27,7 @@ server.use(myMiddlewareFunc);
 ```
 
 ### Available Interceptors
+
 - [client-zipkin-interceptor](interceptors/client-zipkin-interceptor.js)
 - [server-zipkin-interceptor](interceptors/server-zipkin-interceptor.js)
 - [prometheus-interceptor](https://github.com/echo-health/node-grpc-prometheus)

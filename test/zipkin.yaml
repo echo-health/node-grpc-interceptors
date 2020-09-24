@@ -4,14 +4,14 @@ metadata:
   name: zipkin
 spec:
   containers:
-  - image: openzipkin/zipkin:2.4.5
-    env:
-    - name: JAVA_OPTS
-      value: -Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
-    imagePullPolicy: IfNotPresent
-    name: zipkin
-    ports:
-    - containerPort: 9411
-      protocol: TCP
+    - image: openzipkin/zipkin:2.4.5
+      env:
+        - name: JAVA_OPTS
+          value: -Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
+      imagePullPolicy: IfNotPresent
+      name: zipkin
+      ports:
+        - containerPort: 9411
+          protocol: TCP
   restartPolicy: Always
   terminationGracePeriodSeconds: 10

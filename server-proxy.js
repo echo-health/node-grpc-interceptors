@@ -1,72 +1,74 @@
-const utils = require('./utils');
-const grpc = require('grpc');
+const grpc = require('grpc')
+const utils = require('./utils')
 
 const handler = {
   get(target, propKey) {
     if (propKey !== 'addService') {
-      return target[propKey];
+      return target[propKey]
     }
     return (service, implementation) => {
-      const newImplementation = {};
-      const lookup = utils.lookupServiceMetadata(service, implementation);
+      const newImplementation = {}
+      const lookup = utils.lookupServiceMetadata(service, implementation)
       for (const k in implementation) {
-        const name = k;
-        const fn = implementation[k];
+        const name = k
+        const fn = implementation[k]
         newImplementation[name] = (call, callback) => {
           const ctx = {
             call,
             service: lookup(name),
-          };
-          const newCallback = callback => {
+          }
+          const newCallback = (callback) => {
             return (...args) => {
               ctx.status = {
                 code: grpc.status.OK,
-              };
-              const err = args[0];
+              }
+              const err = args[0]
               if (err) {
                 ctx.status = {
                   code: grpc.status.UNKNOWN,
                   details: err,
-                };
+                }
               }
-              callback(...args);
-            };
-          };
+              // eslint-disable-next-line standard/no-callback-literal
+              callback(...args)
+            }
+          }
 
-          const interceptors = target.intercept();
-          const first = interceptors.next();
-          if (!first.value) { // if we don't have any interceptors
-            return new Promise(resolve => {
-              return resolve(fn(call, newCallback(callback)));
-            });
+          const interceptors = target.intercept()
+          const first = interceptors.next()
+          if (!first.value) {
+            // if we don't have any interceptors
+            return new Promise((resolve) => {
+              return resolve(fn(call, newCallback(callback)))
+            })
           }
           first.value(ctx, function next() {
-            return new Promise(resolve => {
-              const i = interceptors.next();
+            return new Promise((resolve) => {
+              const i = interceptors.next()
               if (i.done) {
-                return resolve(fn(call, newCallback(callback)));
+                return resolve(fn(call, newCallback(callback)))
               }
-              return resolve(i.value(ctx, next));
-            });
-          });
-        };
+              return resolve(i.value(ctx, next))
+            })
+          })
+        }
       }
-      return target.addService(service, newImplementation);
-    };
+      return target.addService(service, newImplementation)
+    }
   },
-};
+}
 
 module.exports = (server) => {
-  server.interceptors = [];
-  server.use = fn => {
-    server.interceptors.push(fn);
-  };
+  server.interceptors = []
+  server.use = (fn) => {
+    server.interceptors.push(fn)
+  }
   server.intercept = function* intercept() {
-    let i = 0;
+    let i = 0
     while (i < server.interceptors.length) {
-      yield server.interceptors[i];
-      i++;
+      yield server.interceptors[i]
+      i++
     }
-  };
-  return new Proxy(server, handler);
-};
+  }
+  return new Proxy(server, handler)
+}

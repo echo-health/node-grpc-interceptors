@@ -1,38 +1,58 @@
 {
   "name": "@vivlabs/grpc-interceptors",
   "version": "0.0.13",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/six5/node-grpc-interceptors.git"
+  },
   "scripts": {
     "test": "jest",
-    "lint": "eslint . --fix"
+    "lint": "run-p --aggregate-output lint:*",
+    "lint:js": "eslint '**/*.js'",
+    "lint:all": "prettier . --check",
+    "format": "run-p --aggregate-output format:*",
+    "format:js": "run-s 'lint:js -- --fix'",
+    "format:all": "run-s 'lint:all -- --write'"
   },
-  "dependencies": {
-    "grpc": "^1.24.3",
-    "zipkin": "^0.12.0",
-    "zipkin-transport-http": "^0.12.0"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
-  "devDependencies": {
-    "eslint": "^4.14.0",
-    "eslint-plugin-jest": "^21.15.1",
-    "jest": "^22.4.3",
-    "nock": "^9.2.5",
-    "protobufjs": "^6.8.6"
+  "lint-staged": {
+    "*.js": "eslint",
+    "*": "prettier --check"
   },
-  "main": "index.js",
   "directories": {
     "test": "test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/echo-health/node-grpc-interceptors.git"
+  "dependencies": {
+    "grpc": "^1.24.3",
+    "zipkin": "^0.22.0",
+    "zipkin-transport-http": "^0.22.0"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/echo-health/node-grpc-interceptors/issues"
-  },
-  "homepage": "https://github.com/echo-health/node-grpc-interceptors#readme",
-  "description": "",
-  "jest": {
-    "testEnvironment": "node"
+  "devDependencies": {
+    "@vivlabs/eslint-config-viv-standard": "^12.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-no-only-tests": "^2.4.0",
+    "eslint-plugin-no-unsafe-regex": "^1.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-sort-keys-fix": "^1.1.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.3.0",
+    "jest": "^26.4.2",
+    "lint-staged": "^10.4.0",
+    "nock": "^13.0.4",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.1.2",
+    "protobufjs": "^6.10.1"
   }
 }

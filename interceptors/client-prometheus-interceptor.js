@@ -1,3 +1,3 @@
-const prometheusInterceptor = {};
+const prometheusInterceptor = {}
 
-module.exports = prometheusInterceptor;
+module.exports = prometheusInterceptor
