@@ -10,17 +10,17 @@
     "testURL": "http://localhost"
   },
   "dependencies": {
-    "grpc": "^1.11.1",
-    "zipkin": "^0.12.0",
-    "zipkin-transport-http": "^0.12.0"
+    "grpc": "^1.24.11",
+    "zipkin": "^0.22.0",
+    "zipkin-transport-http": "^0.22.0"
   },
   "devDependencies": {
-    "depcheck": "^0.6.9",
-    "eslint": "^4.14.0",
-    "eslint-plugin-jest": "^21.15.1",
-    "jest": "^22.4.3",
-    "nock": "^9.2.5",
-    "protobufjs": "^6.8.6"
+    "depcheck": "^1.4.3",
+    "eslint": "^8.14.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "jest": "^28.0.2",
+    "nock": "^13.2.4",
+    "protobufjs": "^6.11.2"
   },
   "main": "index.js",
   "directories": {
@@ -36,5 +36,6 @@
     "url": "https://github.com/echo-health/node-grpc-interceptors/issues"
   },
   "homepage": "https://github.com/echo-health/node-grpc-interceptors#readme",
-  "description": ""
+  "description": "",
+  "packageManager": "yarn@3.2.0"
 }
